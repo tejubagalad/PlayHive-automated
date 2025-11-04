@@ -46,7 +46,7 @@ jobs:
       - name: Build & Push 2048 Image
         uses: docker/build-push-action@v4
         with:
-          context: ./microservice-arch/gamehub-microarch/
+          context: ./microservice-arch/gamehub-microarch/TwentyFortyEight/
           file: ./microservice-arch/gamehub-microarch/TwentyFortyEight/Dockerfile
           push: true
           tags: |

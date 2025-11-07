@@ -19,6 +19,7 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
   background: url("images/dice.jpg") no-repeat center center fixed;
+  filter: brightness(0.7);
   background-size: cover;
   animation: galaxyMove 60s linear infinite;
 }

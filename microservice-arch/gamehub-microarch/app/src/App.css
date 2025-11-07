@@ -6,122 +6,88 @@
   --text-primary: #213547;
   --text-secondary: #6c757d;
   --bg-light: #f8fafc;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-  --border-radius: 12px;
+  --bg-pattern: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 226, 0.1) 0%, transparent 50%);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 16px; /* Slightly increased for a softer look */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Modern font stack */
 }
 
-#root {
-  max-width: 1280px;
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background: var(--bg-light) var(--bg-pattern);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.app-container {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
-  background: var(--bg-light);
   min-height: 100vh;
-}
-
-/* Enhanced logo styles */
-.logo-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 3rem;
+  animation: fadeInUp 0.8s ease-out;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter, transform;
-  transition: var(--transition);
-  border-radius: 50%;
-  background: white;
-  box-shadow: var(--shadow-md);
-  position: relative;
-  overflow: hidden;
-}
-
-.logo::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
+.main-content {
+  text-align: center;
   width: 100%;
-  height: 100%;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 800;
   background: var(--primary-gradient);
-  opacity: 0.1;
-  transition: left 0.5s ease;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
-.logo:hover {
-  filter: drop-shadow(0 0 2em var(--accent-color));
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: var(--shadow-lg);
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  font-weight: 400;
 }
 
-.logo:hover::before {
-  left: 0;
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 800px;
 }
 
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-/* Enhanced animations */
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: 
-      logo-spin infinite 20s linear,
-      float infinite 3s ease-in-out;
-  }
-  
-  .logo:hover {
-    animation: pulse infinite 1s ease-in-out;
-  }
-}
-
-/* Enhanced card design */
-.card {
-  padding: 2.5em;
+.game-card {
+  padding: 2rem;
   background: white;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
+  cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.2s both; /* Staggered animation */
 }
 
-.card::before {
+.game-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -129,102 +95,56 @@
   right: 0;
   height: 4px;
   background: var(--primary-gradient);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
-.card:hover {
-  transform: translateY(-5px);
+.game-card:hover::before {
+  transform: scaleX(1);
+}
+
+.game-card:hover {
+  transform: translateY(-8px) scale(1.02);
   box-shadow: var(--shadow-lg);
 }
 
-/* Enhanced typography */
-.read-the-docs {
-  color: var(--text-secondary);
-  font-size: 1.1em;
-  margin-top: 2rem;
-  padding: 1rem;
-  background: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
+.game-card:active {
+  animation: pulse 0.3s ease-in-out;
+}
+
+.game-card-2048 {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.game-card-snake {
+  background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+}
+
+.game-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
   transition: var(--transition);
 }
 
-.read-the-docs:hover {
-  color: var(--text-primary);
-  box-shadow: var(--shadow-md);
-  transform: translateX(5px);
+.game-card:hover .game-icon {
+  transform: scale(1.1);
 }
 
-/* Additional decorative elements */
-.welcome-text {
-  font-size: 2.5em;
+.game-title {
+  font-size: 1.5rem;
   font-weight: 700;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
-.subtitle {
-  font-size: 1.2em;
+.game-description {
+  font-size: 1rem;
   color: var(--text-secondary);
-  margin-bottom: 3rem;
-  font-weight: 300;
+  margin: 0;
 }
 
-/* Grid layout for multiple cards */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-.feature-card {
-  padding: 2rem;
-  background: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-  text-align: left;
-}
-
-.feature-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-}
-
-.feature-icon {
-  font-size: 2em;
-  margin-bottom: 1rem;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
-  #root {
-    padding: 1rem;
-  }
-  
-  .logo-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .welcome-text {
-    font-size: 2em;
-  }
-  
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Loading animation for better perceived performance */
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -236,6 +156,53 @@
   }
 }
 
-.card, .logo, .read-the-docs {
-  animation: fadeInUp 0.6s ease-out;
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.98);
+  }
+}
+
+/* Focus states for accessibility */
+.game-card:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 1rem;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .game-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .game-card, .app-container, .game-icon {
+    animation: none;
+    transition: none;
+  }
+  
+  .game-card:hover {
+    transform: none;
+  }
 }

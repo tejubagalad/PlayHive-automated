@@ -5,40 +5,30 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
-    # GameHub (main app)
     - host: playhive.cloudapp.azure.com
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - path: /()(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: gamehub-service
                 port:
                   number: 80
-
-    # Snake subdomain
-    - host: snake.playhive.cloudapp.azure.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
+          - path: /snake(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: snake-service
                 port:
                   number: 80
-
-    # 2048 subdomain
-    - host: game2048.playhive.cloudapp.azure.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
+          - path: /2048(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: game2048-service

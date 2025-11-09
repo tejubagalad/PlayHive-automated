@@ -10,9 +10,23 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: playhive.cloudapp.azure.com
+    # 🔹 Fallback rule (works when accessing via IP)
+    - host: ""
       http:
         paths:
+          - path: /(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gamehub-service
+                port:
+                  number: 80
+
+    # 🔹 Main host-based routing
+    - host: playhive.southindia.cloudapp.azure.com
+      http:
+        paths:
+          # GameHub main app
           - path: /()(.*)
             pathType: ImplementationSpecific
             backend:
@@ -20,6 +34,7 @@ spec:
                 name: gamehub-service
                 port:
                   number: 80
+          # Snake game microservice
           - path: /snake(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -27,6 +42,7 @@ spec:
                 name: snake-service
                 port:
                   number: 80
+          # 2048 game microservice
           - path: /2048(/|$)(.*)
             pathType: ImplementationSpecific
             backend:

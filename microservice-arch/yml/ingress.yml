@@ -2,13 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: gamehub-ingress
+  namespace: default # 👈 REQUIRED for Flux reconciliation
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-    - host: playhive.cloudapp.azure.com  # optional: replace with your domain or remove host to use IP
+    - host: playhive.cloudapp.azure.com # optional: replace with your domain, or remove line for IP-based access
       http:
         paths:
           - path: /

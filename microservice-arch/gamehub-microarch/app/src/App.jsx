@@ -3,20 +3,19 @@ import './App.css';
 
 const App = () => {
   const redirectToGame = (game) => {
-    // 🌐 Dynamically determine the base URL at runtime
+    // 🌐 Always use same origin (works locally and in Azure)
     const baseUrl = window.location.origin;
 
-    // 🧭 Construct proper URLs for ingress-based routing
+    // 🧭 Match your ingress subpaths
     const gameUrls = {
-      '2048': `${baseUrl}/2048`,
-      'snake': `${baseUrl}/snake`,
+      '2048': `${baseUrl}/2048/`,
+      'snake': `${baseUrl}/snake/`,
     };
 
     const card = document.querySelector(`.game-card-${game}`);
-    if (card) {
-      card.classList.add('loading');
-    }
+    if (card) card.classList.add('loading');
 
+    // ⏳ Add slight delay for animation
     setTimeout(() => {
       window.location.href = gameUrls[game];
     }, 400);

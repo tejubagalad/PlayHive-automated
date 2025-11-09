@@ -1,9 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+// Snake game served at /snake/
 export default defineConfig({
   base: '/snake/',
- 
   plugins: [react()],
 })

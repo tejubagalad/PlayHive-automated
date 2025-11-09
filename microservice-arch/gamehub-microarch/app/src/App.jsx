@@ -3,9 +3,13 @@ import './App.css';
 
 const App = () => {
   const redirectToGame = (game) => {
+    // 🌐 Dynamically determine the base URL at runtime
+    const baseUrl = window.location.origin;
+
+    // 🧭 Construct proper URLs for ingress-based routing
     const gameUrls = {
-      '2048': 'http://2048.gamehub.local',
-      'snake': 'http://snake.gamehub.local'
+      '2048': `${baseUrl}/2048`,
+      'snake': `${baseUrl}/snake`,
     };
 
     const card = document.querySelector(`.game-card-${game}`);
@@ -63,4 +67,3 @@ const App = () => {
 };
 
 export default App;
-

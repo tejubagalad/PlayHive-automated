@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gamehub
+  namespace: default # 👈 ADD THIS LINE
   labels:
     app: gamehub
 spec:

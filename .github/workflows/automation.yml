@@ -52,6 +52,11 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-2048:latest
 
- 
-
-
+      # ✅ Trigger Flux to reconcile AKS (GitOps sync)
+      - name: Trigger FluxCD Sync
+        run: |
+          echo "Triggering FluxCD reconciliation..."
+          curl -X POST -H "Accept: application/vnd.github+json" \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               https://api.github.com/repos/${{ github.repository }}/dispatches \
+               -d '{"event_type": "flux-sync"}'

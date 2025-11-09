@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: snake
+  labels:
+    app: snake
 spec:
   replicas: 1
   selector:
@@ -13,15 +15,18 @@ spec:
         app: snake
     spec:
       containers:
-      - name: snake
-        image: tejubagalad/playhive-snake:latest
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            cpu: "100m"
-          limits:
-            cpu: "200m"
+        - name: snake
+          image: tejubagalad/playhive-auto-snake:latest
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "200m"
+      imagePullSecrets:
+        - name: dockerhub-creds
 ---
 apiVersion: v1
 kind: Service
@@ -34,4 +39,3 @@ spec:
   ports:
     - port: 80
       targetPort: 80
- 

@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gamehub
+  labels:
+    app: gamehub
 spec:
   replicas: 1
   selector:
@@ -13,10 +15,13 @@ spec:
         app: gamehub
     spec:
       containers:
-      - name: gamehub
-        image: tejubagalad/playhive-app:latest
-        ports:
-        - containerPort: 80
+        - name: gamehub
+          image: tejubagalad/playhive-auto-app:latest
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: dockerhub-creds
 ---
 apiVersion: v1
 kind: Service
@@ -29,4 +34,3 @@ spec:
   ports:
     - port: 80
       targetPort: 80
-  

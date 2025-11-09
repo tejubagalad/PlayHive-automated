@@ -32,7 +32,7 @@ jobs:
           file: ./microservice-arch/gamehub-microarch/app/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/playhive-app:latest
+            ${{ secrets.DOCKER_USERNAME }}/playhive-auto-app:latest
 
       - name: Build & Push Snake Image
         uses: docker/build-push-action@v4
@@ -41,7 +41,7 @@ jobs:
           file: ./microservice-arch/gamehub-microarch/SnakeGame/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/playhive-snake:latest
+            ${{ secrets.DOCKER_USERNAME }}/playhive-auto-snake:latest
 
       - name: Build & Push 2048 Image
         uses: docker/build-push-action@v4
@@ -50,39 +50,8 @@ jobs:
           file: ./microservice-arch/gamehub-microarch/TwentyFortyEight/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/playhive-2048:latest
+            ${{ secrets.DOCKER_USERNAME }}/playhive-auto-2048:latest
 
-  deploy:
-    needs: build
-    runs-on: self-hosted
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Start Minikube
-        run: |
-          minikube start --driver=docker
-          minikube status
-
-      - name: Pull Latest Images from Docker Hub
-        run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/playhive-app:latest
-          docker pull ${{ secrets.DOCKER_USERNAME }}/playhive-snake:latest
-          docker pull ${{ secrets.DOCKER_USERNAME }}/playhive-2048:latest
-
-      - name: Deploy All Microservices
-        run: |
-          kubectl apply -f microservice-arch/yml/
-          kubectl get pods -o wide
-
-      - name: Wait for Deployments
-        run: sleep 90s
-
-      - name: Show Service URLs
-        run: |
-          echo "🎮 PlayHive Hub: $(minikube service gamehub-service --url)"
-          echo "🐍 Snake Game: $(minikube service snake-service --url)"
-          echo "🧩 2048 Game: $(minikube service game2048-service --url)"
+ 
 
 

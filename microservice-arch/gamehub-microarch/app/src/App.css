@@ -1,172 +1,42 @@
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --accent-color: #7f5af0;
-  --glow: #b197fc;
-  --text-primary: #ffffff;
-  --text-secondary: #d0d0d0;
-  --bg-dark: #0f172a;
-  --card-bg: rgba(255, 255, 255, 0.08);
-  --border-radius: 18px;
-  --transition: all 0.35s ease;
-  --font-family: 'Poppins', 'Inter', sans-serif;
-}
-
-/* ✨ GALAXY BACKGROUND ✨ */
-body {
-  margin: 0;
-  font-family: var(--font-family);
-  color: var(--text-primary);
-  overflow-x: hidden;
-  background: url("images/dice.jpg") no-repeat center center fixed;
-  filter: brightness(0.7);
-  background-size: cover;
-  animation: galaxyMove 60s linear infinite;
-}
-
-/* 🌀 Slow movement of galaxy backdrop */
-@keyframes galaxyMove {
-  from {
-    background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
-  }
-  to {
-    background-position: 5000px 2000px, -3000px -1500px, 4000px 1000px, -2500px 1500px, 0 0;
-  }
-}
-
-.app-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  flex-direction: column;
-  text-align: center;
-  animation: fadeIn 1s ease-out;
-  position: relative;
-  z-index: 2;
-}
-
-.title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, #a855f7, #6366f1, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 25px rgba(99, 102, 241, 0.8);
-  margin-bottom: 0.3rem;
-  letter-spacing: -0.02em;
-}
-
-.subtitle {
-  font-size: 1.3rem;
-  color: var(--text-secondary);
-  margin-bottom: 2.5rem;
-}
-
-.games-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2.2rem;
-  width: 100%;
-  max-width: 900px;
-  padding: 0 1rem;
-}
-
-.game-card {
-  position: relative;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 2rem;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: var(--transition);
-  overflow: hidden;
-  transform-style: preserve-3d;
+  text-align: center;
 }
 
-.card-glow {
-  position: absolute;
-  inset: 0;
-  background: var(--primary-gradient);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  border-radius: inherit;
-  filter: blur(25px);
-  z-index: 0;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.game-card:hover .card-glow {
-  opacity: 0.4;
-}
-
-.game-card:hover {
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 8px 30px rgba(127, 90, 240, 0.3);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.game-icon {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  display: block;
-  transform: scale(1);
-  transition: var(--transition);
-}
-
-.game-card:hover .game-icon {
-  transform: scale(1.2) rotate(5deg);
-}
-
-.game-title {
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #fff;
-}
-
-.game-description {
-  font-size: 1rem;
-  color: var(--text-secondary);
-}
-
-.game-card-2048 {
-  background: linear-gradient(145deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-}
-
-.game-card-snake {
-  background: linear-gradient(145deg, rgba(240, 147, 251, 0.15), rgba(245, 87, 108, 0.15));
-}
-
-.loading {
-  opacity: 0.6;
-  pointer-events: none;
-  transform: scale(0.97);
-}
-
-/* Animations */
-@keyframes fadeIn {
+@keyframes logo-spin {
   from {
-    opacity: 0;
-    transform: translateY(40px);
+    transform: rotate(0deg);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
 }
 
-/* Responsiveness */
-@media (max-width: 768px) {
-  .title {
-    font-size: 2.5rem;
-  }
-  .subtitle {
-    font-size: 1.1rem;
-  }
-  .game-card {
-    padding: 1.5rem;
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
   }
 }
 
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}

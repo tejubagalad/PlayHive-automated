@@ -1,65 +1,120 @@
-import React from 'react';
-import './App.css';
+import React, { useState } from 'react';
 
 const App = () => {
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  const startGame = (game) => {
+    setSelectedGame(game);
+  };
+
+  const backToHome = () => {
+    setSelectedGame(null);
+  };
+
+  const getGameUrl = (game) => {
+    if (game === '2048') return 'http://2048.gamehub.local';
+    if (game === 'snake') return 'http://snake.gamehub.local';
+    return '';
+  };
+
   const redirectToGame = (game) => {
-    // 🌐 Always use same origin (works locally and in Azure)
-    const baseUrl = window.location.origin;
-
-    // 🧭 Match your ingress subpaths
-    const gameUrls = {
-      '2048': `${baseUrl}/2048/`,
-      'snake': `${baseUrl}/snake/`,
-    };
-
-    const card = document.querySelector(`.game-card-${game}`);
-    if (card) card.classList.add('loading');
-
-    // ⏳ Add slight delay for animation
-    setTimeout(() => {
-      window.location.href = gameUrls[game];
-    }, 400);
+    window.location.href = getGameUrl(game); // This will redirect the user
   };
 
   return (
-    <div className="app-container">
-      <div className="main-content">
-        <h1 className="title">🎮 GameHub</h1>
-        <p className="subtitle">Choose your next challenge</p>
+    <div
+      style={{
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#121212',
+        color: '#f8f8f8',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          minHeight: '100vh',
+          width: '100%',
+          backgroundColor: '#121212',
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 20,
+        }}
+      >
+        {!selectedGame ? (
+          <>
+            <h1 style={{ marginBottom: '20px' }}>Welcome to the Game Hub!</h1>
+            <div>
+              <button
+                onClick={() => redirectToGame('2048')} // Navigate to 2048 game
+                style={{
+                  fontSize: '20px',
+                  backgroundColor: '#007bff',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  marginBottom: '20px',
+                  marginRight: '30px',
+                }}
+              >
+                Play 2048
+              </button>
 
-        <div className="games-grid">
-          <div
-            className="game-card game-card-2048"
-            onClick={() => redirectToGame('2048')}
-            role="button"
-            tabIndex={0}
-            aria-label="Play 2048 game"
-            onKeyDown={(e) => e.key === 'Enter' && redirectToGame('2048')}
-          >
-            <div className="card-glow"></div>
-            <span className="game-icon">🧩</span>
-            <h2 className="game-title">2048</h2>
-            <p className="game-description">
-              Merge tiles and reach the magic 2048 in this addictive puzzle!
-            </p>
-          </div>
-
-          <div
-            className="game-card game-card-snake"
-            onClick={() => redirectToGame('snake')}
-            role="button"
-            tabIndex={0}
-            aria-label="Play Snake game"
-            onKeyDown={(e) => e.key === 'Enter' && redirectToGame('snake')}
-          >
-            <div className="card-glow"></div>
-            <span className="game-icon">🐍</span>
-            <h2 className="game-title">Snake</h2>
-            <p className="game-description">
-              Guide your snake to grow longer — without biting yourself!
-            </p>
-          </div>
-        </div>
+              <button
+                onClick={() => redirectToGame('snake')} // Navigate to Snake game
+                style={{
+                  fontSize: '20px',
+                  backgroundColor: '#007bff',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                Play Snake Game
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={backToHome}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                padding: '10px 20px',
+                fontSize: '16px',
+                backgroundColor: '#007bff',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                zIndex: 10,
+              }}
+            >
+              Back to Home
+            </button>
+            {/* Optional: You can keep the iframe if you want */}
+            {/* <iframe
+              src={getGameUrl(selectedGame)}
+              title={selectedGame}
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+              }}
+            ></iframe> */}
+          </>
+        )}
       </div>
     </div>
   );

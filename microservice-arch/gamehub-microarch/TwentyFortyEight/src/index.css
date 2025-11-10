@@ -17,6 +17,8 @@
 html {
   background-color: #121212;
   color: rgba(255, 255, 255, 0.87);
+  overflow: hidden;
+  height: 100%;
 }
 
 body {
@@ -25,8 +27,12 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  max-height: 100vh;
   background-color: #121212 !important;
   color: rgba(255, 255, 255, 0.87);
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 a {

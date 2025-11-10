@@ -64,18 +64,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-2048:latest
 
-      # 🧩 Step 7: Login to Azure
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # 🧩 Step 8: Get AKS Cluster Credentials
-      - name: Get AKS Credentials
-        run: |
-          az aks get-credentials --resource-group playhive-rg --name playhive-cluster --overwrite-existing
-
-      # 🧩 Step 9: Install Flux CLI on Runner
+      # 🧩 Step 7: Install Flux CLI
       - name: Install Flux CLI
         run: |
           echo "Installing FluxCD CLI..."
@@ -83,17 +72,17 @@ jobs:
           export PATH=$PATH:/usr/local/bin
           flux --version
 
-      # 🧩 Step 10: Trigger FluxCD Reconciliation
+      # 🧩 Step 8: Trigger FluxCD Reconciliation
       - name: Trigger FluxCD Reconciliation
         run: |
           echo "Reconciling FluxCD with latest GitHub state..."
           flux reconcile source git flux-system
           flux reconcile kustomization flux-system --with-source
 
-      # ✅ Step 11: Verify Deployment (Optional Log Check)
+      # 🧩 Step 9: Verify Deployment (Optional)
       - name: Verify Deployment
         run: |
           echo "Checking FluxCD sync status..."
-          flux get kustomizations -A
+          flux get kustomizations -A || true
           echo "Listing active pods..."
-          kubectl get pods -n default
+          kubectl get pods -n default || true

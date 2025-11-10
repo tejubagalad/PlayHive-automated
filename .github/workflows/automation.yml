@@ -1,4 +1,4 @@
-name: CI/CD for PlayHive Microservices
+name: CI/CD for PlayHive Microservices (Kubeconfig Auth)
 
 on:
   push:
@@ -16,73 +16,77 @@ jobs:
       contents: read
 
     steps:
-      # 🧩 Step 1: Checkout Code
+      # 🧩 Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 🧩 Step 2: Setup Docker Buildx
+      # 🧩 Docker Setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 🧩 Step 3: Login to DockerHub
+      # 🧩 Docker Login
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 🧩 Step 4: Build and Push GameHub Microservice
+      # 🧩 Build & Push GameHub
       - name: Build & Push GameHub Image
         uses: docker/build-push-action@v5
         with:
           context: ./microservice-arch/gamehub-microarch/app
           file: ./microservice-arch/gamehub-microarch/app/Dockerfile
           push: true
-          no-cache: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-app:latest
 
-      # 🧩 Step 5: Build and Push Snake Microservice
+      # 🧩 Build & Push Snake
       - name: Build & Push Snake Image
         uses: docker/build-push-action@v5
         with:
           context: ./microservice-arch/gamehub-microarch/SnakeGame
           file: ./microservice-arch/gamehub-microarch/SnakeGame/Dockerfile
           push: true
-          no-cache: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-snake:latest
 
-      # 🧩 Step 6: Build and Push 2048 Microservice
+      # 🧩 Build & Push 2048
       - name: Build & Push 2048 Image
         uses: docker/build-push-action@v5
         with:
           context: ./microservice-arch/gamehub-microarch/TwentyFortyEight
           file: ./microservice-arch/gamehub-microarch/TwentyFortyEight/Dockerfile
           push: true
-          no-cache: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-2048:latest
 
-      # 🧩 Step 7: Install Flux CLI
+      # 🧩 Configure kubeconfig from secret
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+          echo "✅ Kubeconfig configured:"
+          kubectl config current-context
+
+      # 🧩 Install Flux CLI
       - name: Install Flux CLI
         run: |
-          echo "Installing FluxCD CLI..."
           curl -s https://fluxcd.io/install.sh | bash
           export PATH=$PATH:/usr/local/bin
           flux --version
 
-      # 🧩 Step 8: Trigger FluxCD Reconciliation
+      # 🧩 Trigger FluxCD Reconciliation
       - name: Trigger FluxCD Reconciliation
         run: |
-          echo "Reconciling FluxCD with latest GitHub state..."
+          echo "🔁 Reconciling FluxCD..."
           flux reconcile source git flux-system
           flux reconcile kustomization flux-system --with-source
 
-      # 🧩 Step 9: Verify Deployment (Optional)
-      - name: Verify Deployment
+      # 🧩 Verify Deployment
+      - name: Verify Deployment (Pods Status)
         run: |
-          echo "Checking FluxCD sync status..."
-          flux get kustomizations -A || true
-          echo "Listing active pods..."
-          kubectl get pods -n default || true
+          echo "🧩 Checking pod statuses..."
+          kubectl get pods -n default
+          echo "✅ CI/CD Pipeline completed successfully!"

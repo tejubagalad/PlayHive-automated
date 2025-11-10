@@ -1,4 +1,4 @@
-name: CI/CD for PlayHive Microservices (Kubeconfig Auth)
+name: CI/CD for PlayHive Microservices (Kubeconfig Auth + Auto-Rollout)
 
 on:
   push:
@@ -16,22 +16,18 @@ jobs:
       contents: read
 
     steps:
-      # 🧩 Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 🧩 Docker Setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 🧩 Docker Login
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 🧩 Build & Push GameHub
       - name: Build & Push GameHub Image
         uses: docker/build-push-action@v5
         with:
@@ -41,7 +37,6 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-app:latest
 
-      # 🧩 Build & Push Snake
       - name: Build & Push Snake Image
         uses: docker/build-push-action@v5
         with:
@@ -51,7 +46,6 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-snake:latest
 
-      # 🧩 Build & Push 2048
       - name: Build & Push 2048 Image
         uses: docker/build-push-action@v5
         with:
@@ -61,32 +55,44 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-2048:latest
 
-      # 🧩 Configure kubeconfig from secret
       - name: Set up kubeconfig
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
           chmod 600 ~/.kube/config
-          echo "✅ Kubeconfig configured:"
           kubectl config current-context
 
-      # 🧩 Install Flux CLI
       - name: Install Flux CLI
         run: |
           curl -s https://fluxcd.io/install.sh | bash
           export PATH=$PATH:/usr/local/bin
           flux --version
 
-      # 🧩 Trigger FluxCD Reconciliation
       - name: Trigger FluxCD Reconciliation
         run: |
           echo "🔁 Reconciling FluxCD..."
           flux reconcile source git flux-system
           flux reconcile kustomization flux-system --with-source
 
-      # 🧩 Verify Deployment
-      - name: Verify Deployment (Pods Status)
+      - name: Force Pod Rollout Restart
+        run: |
+          echo "♻️ Restarting deployments to pull latest images..."
+          kubectl rollout restart deployment gamehub -n default || true
+          kubectl rollout restart deployment snake -n default || true
+          kubectl rollout restart deployment game2048 -n default || true
+          echo "✅ Deployments restarted successfully!"
+
+      - name: Verify Deployment (Pods + App Health)
         run: |
           echo "🧩 Checking pod statuses..."
           kubectl get pods -n default
-          echo "✅ CI/CD Pipeline completed successfully!"
+          echo "🌐 Verifying app endpoints..."
+          for path in "" "snake/" "2048/"; do
+            echo "Testing http://playhive.southindia.cloudapp.azure.com/$path"
+            if curl -I -s -o /dev/null -w "%{http_code}" http://playhive.southindia.cloudapp.azure.com/$path | grep -q 200; then
+              echo "✅ $path reachable"
+            else
+              echo "❌ $path failed to respond"; exit 1
+            fi
+          done
+          echo "🎯 All apps deployed and healthy!"

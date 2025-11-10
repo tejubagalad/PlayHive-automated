@@ -1,132 +1,78 @@
-import React, { useState } from 'react';
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import "./App.css";
 
 const App = () => {
-  const [selectedGame, setSelectedGame] = useState(null);
-
-  const startGame = (game) => {
-    setSelectedGame(game);
-  };
-
-  const backToHome = () => {
-    setSelectedGame(null);
-  };
-
-  // ✅ Dynamically detect environment
   const getBaseUrl = () => {
     const host = window.location.hostname;
-
-    // For Azure AKS (public cloud)
     if (host.includes("cloudapp.azure.com")) {
       return "http://playhive.southindia.cloudapp.azure.com";
     }
-
-    // For local development (Minikube or Docker)
     if (host.includes("gamehub.local") || host.includes("localhost")) {
       return "";
     }
-
-    // Default fallback
     return "";
   };
 
-  // ✅ Map microservice paths correctly
   const getGameUrl = (game) => {
     const baseUrl = getBaseUrl();
-
     if (game === "2048") return `${baseUrl}/2048/`;
     if (game === "snake") return `${baseUrl}/snake/`;
     return "/";
   };
 
   const redirectToGame = (game) => {
-    window.location.href = getGameUrl(game); // Redirect user
+    window.location.href = getGameUrl(game);
   };
 
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "#121212",
-        color: "#f8f8f8",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          minHeight: "100vh",
-          width: "100%",
-          backgroundColor: "#121212",
-          color: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 20,
-        }}
-      >
-        {!selectedGame ? (
-          <>
-            <h1 style={{ marginBottom: '20px', color: '#00ff88' }}>🎮 Welcome to the New Game Hub!</h1>
-            <div>
-              <button
-                onClick={() => redirectToGame("2048")}
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "#007bff",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  marginBottom: "20px",
-                  marginRight: "30px",
-                }}
-              >
-                Play 2048
-              </button>
+    <div className="bg-dark text-light min-vh-100 d-flex flex-column justify-content-between">
+      {/* Navbar */}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-black shadow-sm w-100">
+        <div className="container justify-content-center">
+          <span className="navbar-brand fw-bold fs-3 text-success">
+            🎮 PlayHive
+          </span>
+        </div>
+      </nav>
 
-              <button
-                onClick={() => redirectToGame("snake")}
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "#007bff",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Play Snake Game
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
+      {/* Main Content */}
+      <main className="container-fluid text-center flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+        <h1 className="fw-bold text-success mb-4 display-6">
+          Welcome to the PlayHive!
+        </h1>
+        <p className="text-secondary mb-4">
+          Choose your game below and have fun!
+        </p>
+
+        <div className="row justify-content-center g-3 w-100 px-3">
+          <div className="col-12 col-sm-6 col-md-4">
             <button
-              onClick={backToHome}
-              style={{
-                position: "absolute",
-                top: "20px",
-                left: "20px",
-                padding: "10px 20px",
-                fontSize: "16px",
-                backgroundColor: "#007bff",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                zIndex: 10,
-              }}
+              onClick={() => redirectToGame("2048")}
+              className="btn btn-primary w-100 py-3 fs-5"
             >
-              Back to Home
+              <i className="bi bi-grid-3x3-gap-fill me-2"></i>
+              Play 2048
             </button>
-          </>
-        )}
-      </div>
+          </div>
+
+          <div className="col-12 col-sm-6 col-md-4">
+            <button
+              onClick={() => redirectToGame("snake")}
+              className="btn btn-success w-100 py-3 fs-5"
+            >
+              <i className="bi bi-controller me-2"></i>
+              Play Snake
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-black text-center text-muted py-3 small w-100">
+        © {new Date().getFullYear()} PlayHive | Built with 💙 React + Bootstrap
+      </footer>
     </div>
   );
 };

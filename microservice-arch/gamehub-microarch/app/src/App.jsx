@@ -71,7 +71,7 @@ const App = () => {
       >
         {!selectedGame ? (
           <>
-            <h1 style={{ marginBottom: "20px" }}>Welcome to the Game Hub!</h1>
+            <h1 style={{ marginBottom: '20px', color: '#00ff88' }}>🎮 Welcome to the New Game Hub!</h1>
             <div>
               <button
                 onClick={() => redirectToGame("2048")}

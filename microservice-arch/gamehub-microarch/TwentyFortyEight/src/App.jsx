@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 
 const GRID_SIZE = 4;
@@ -73,6 +74,7 @@ function App() {
   const [grid, setGrid] = useState(addNewTile(addNewTile(getEmptyGrid())));
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   const move = (direction) => {
     let newGrid = cloneGrid(grid);
@@ -151,74 +153,96 @@ function App() {
     setScore(0);
   };
 
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (gameOver) return;
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      if (Math.abs(deltaX) > minSwipeDistance) {
+        if (deltaX > 0) move('right');
+        else move('left');
+      }
+    } else {
+      // Vertical swipe
+      if (Math.abs(deltaY) > minSwipeDistance) {
+        if (deltaY > 0) move('down');
+        else move('up');
+      }
+    }
+  };
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
   return (
-    <div
-      style={{
-       
-        
-
-      }}
-    >
-      <h1 style={{ marginBottom: '20px' }}>2048 Game</h1>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${GRID_SIZE}, 80px)`,
-          gridGap: '8px',
-          backgroundColor: '#1e1e1e',
-          padding: '10px',
-          borderRadius: '10px',
-        }}
-      >
-        {grid.flat().map((val, idx) => (
-          <div
-            key={idx}
-            style={{
-              width: '80px',
-              height: '80px',
-              backgroundColor: val === 0 ? '#2d2d2d' : getTileColor(val),
-              color: val > 4 ? '#f9f6f2' : '#776e65',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold',
-              fontSize: '24px',
-              borderRadius: '8px',
-              transition: 'transform 0.2s ease, background-color 0.2s ease',
-            }}
-          >
-            {val !== 0 ? val : ''}
+    <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100" style={{ backgroundColor: '#121212' }}>
+      <div className="text-center">
+        <h1 className="mb-4 text-white">2048 Game</h1>
+        <div className="d-flex justify-content-center mb-3">
+          <div className="badge bg-dark border border-secondary fs-5 px-4 py-2">
+            <strong>Score:</strong> {score}
           </div>
-        ))}
-      </div>
-      <div style={{ marginTop: '20px', fontSize: '18px' }}>
-        <strong>Score:</strong> {score}
-      </div>
-      {gameOver && (
-        <div style={{ marginTop: '10px', color: 'red', textAlign: 'center' }}>
-          <div><strong>Game Over!</strong></div>
-          <button
-            onClick={resetGame}
-            style={{
-              marginTop: '10px',
-              padding: '10px 20px',
-              fontSize: '16px',
-              backgroundColor: '#007bff',
-              border: 'none',
-              color: 'white',
-              borderRadius: '6px',
-              cursor: 'pointer',
-            }}
-          >
-            Restart Game
-          </button>
         </div>
-      )}
+        <div
+          className="game-board mx-auto"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(60px, 80px))`,
+            gridGap: '8px',
+            backgroundColor: '#3a3a3c',
+            padding: '10px',
+            borderRadius: '10px',
+            maxWidth: '360px',
+            touchAction: 'none',
+            userSelect: 'none',
+          }}
+        >
+          {grid.flat().map((val, idx) => (
+            <div
+              key={idx}
+              style={{
+                width: '100%',
+                aspectRatio: '1',
+                backgroundColor: val === 0 ? '#1c1c1e' : getTileColor(val),
+                color: val > 4 ? '#f9f6f2' : '#776e65',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                fontSize: 'clamp(18px, 4vw, 24px)',
+                borderRadius: '8px',
+                transition: 'transform 0.2s ease, background-color 0.2s ease',
+              }}
+            >
+              {val !== 0 ? val : ''}
+            </div>
+          ))}
+        </div>
+        {gameOver && (
+          <div className="mt-3 text-danger">
+            <div><strong>Game Over!</strong></div>
+            <button
+              onClick={resetGame}
+              className="btn btn-primary mt-2"
+            >
+              Restart Game
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

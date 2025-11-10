@@ -9,23 +9,30 @@ on:
       - main
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
+      # 🧩 Step 1: Checkout Code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 🧩 Step 2: Setup Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # 🧩 Step 3: Login to DockerHub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build & Push GameHub App Image
+      # 🧩 Step 4: Build and Push GameHub Microservice
+      - name: Build & Push GameHub Image
         uses: docker/build-push-action@v5
         with:
           context: ./microservice-arch/gamehub-microarch/app
@@ -35,6 +42,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-app:latest
 
+      # 🧩 Step 5: Build and Push Snake Microservice
       - name: Build & Push Snake Image
         uses: docker/build-push-action@v5
         with:
@@ -45,6 +53,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-snake:latest
 
+      # 🧩 Step 6: Build and Push 2048 Microservice
       - name: Build & Push 2048 Image
         uses: docker/build-push-action@v5
         with:
@@ -55,8 +64,36 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/playhive-auto-2048:latest
 
+      # 🧩 Step 7: Login to Azure
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 🧩 Step 8: Get AKS Cluster Credentials
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group playhive-rg --name playhive-cluster --overwrite-existing
+
+      # 🧩 Step 9: Install Flux CLI on Runner
+      - name: Install Flux CLI
+        run: |
+          echo "Installing FluxCD CLI..."
+          curl -s https://fluxcd.io/install.sh | bash
+          export PATH=$PATH:/usr/local/bin
+          flux --version
+
+      # 🧩 Step 10: Trigger FluxCD Reconciliation
       - name: Trigger FluxCD Reconciliation
         run: |
           echo "Reconciling FluxCD with latest GitHub state..."
           flux reconcile source git flux-system
           flux reconcile kustomization flux-system --with-source
+
+      # ✅ Step 11: Verify Deployment (Optional Log Check)
+      - name: Verify Deployment
+        run: |
+          echo "Checking FluxCD sync status..."
+          flux get kustomizations -A
+          echo "Listing active pods..."
+          kubectl get pods -n default

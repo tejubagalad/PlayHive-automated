@@ -1,4 +1,4 @@
-name: CI/CD for PlayHive Microservices (Lightweight + Auto Ingress Fix)
+name: CI/CD for PlayHive Microservices (Resilient + Auto Heal)
 
 on:
   push:
@@ -69,6 +69,21 @@ jobs:
           chmod 600 ~/.kube/config
           kubectl config current-context
 
+      # 8️⃣ Wait for AKS API to be reachable (after cluster restart)
+      - name: Wait for AKS Cluster API
+        run: |
+          echo "⏳ Waiting for AKS cluster API to become ready..."
+          for i in {1..15}; do
+            if kubectl cluster-info > /dev/null 2>&1; then
+              echo "✅ AKS cluster is reachable!"
+              break
+            else
+              echo "🔁 Retrying in 20s..."
+              sleep 20
+            fi
+          done
+
+      # 9️⃣ Ensure Ingress Controller is Running
       - name: 🧩 Ensure Ingress Controller is Running
         run: |
           echo "🔍 Checking ingress controller status..."
@@ -89,38 +104,65 @@ jobs:
             echo "✅ Ingress controller already running."
           fi
 
-      # 9️⃣ Install Flux CLI
+      # 🔟 Install Flux CLI
       - name: Install Flux CLI
         run: |
           curl -sL https://fluxcd.io/install.sh | bash
           export PATH=$PATH:/usr/local/bin
           flux --version
 
-      # 🔟 Trigger FluxCD Reconciliation
-      - name: Trigger FluxCD Reconciliation
+      # 1️⃣1️⃣ Wait for Flux CRDs to Be Ready
+      - name: Wait for Flux CRDs to Be Ready
         run: |
-          echo "🔁 Reconciling FluxCD..."
-          flux reconcile source git flux-system
-          flux reconcile kustomization flux-system --with-source
+          echo "🧠 Waiting for Flux components..."
+          for i in {1..10}; do
+            if kubectl get pods -n flux-system >/dev/null 2>&1; then
+              echo "✅ Flux components detected."
+              break
+            else
+              echo "⏳ Flux system not yet ready, waiting..."
+              sleep 20
+            fi
+          done
 
-      # 1️⃣1️⃣ Restart App Deployments (Always Latest Image)
-      - name: Force Pod Rollout Restart
+      # 1️⃣2️⃣ Check and Reconcile Flux if Drift Detected
+      - name: Check and Reconcile Flux if Drift Detected
         run: |
-          echo "♻️ Restarting deployments..."
-          kubectl rollout restart deployment gamehub -n default || true
-          kubectl rollout restart deployment snake -n default || true
-          kubectl rollout restart deployment game2048 -n default || true
-          echo "✅ Deployments restarted successfully."
+          echo "🔁 Checking Flux sync state..."
+          if ! flux get kustomizations | grep -q "Ready"; then
+            echo "⚠️ Drift detected — reconciling..."
+            flux reconcile source git flux-system
+            flux reconcile kustomization flux-system --with-source
+          else
+            echo "✅ Flux is already in sync."
+          fi
 
-      # 1️⃣2️⃣ Verify Application Health
+      # 1️⃣3️⃣ Smart Restart (Only If Image Changed)
+      - name: Smart Restart (Only if Image Updated)
+        run: |
+          for dep in gamehub snake game2048; do
+            echo "🔍 Checking image for $dep..."
+            CURRENT_IMAGE=$(kubectl get deployment $dep -o jsonpath='{.spec.template.spec.containers[0].image}' || true)
+            if [[ "$CURRENT_IMAGE" == *":latest"* ]]; then
+              echo "♻️ Restarting $dep to pull new image..."
+              kubectl rollout restart deployment $dep || true
+            else
+              echo "✅ $dep is already up-to-date."
+            fi
+          done
+
+      # 1️⃣4️⃣ Verify Application Health (Dynamic Ingress IP)
       - name: Verify Deployment (Pods + App Health)
         run: |
           echo "🧩 Checking pod statuses..."
           kubectl get pods -n default
           echo "🌐 Verifying app endpoints..."
+          INGRESS_IP=$(kubectl get ingress gamehub-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "Detected Ingress IP: $INGRESS_IP"
           for path in "" "snake/" "2048/"; do
-            echo "Testing http://playhive.southindia.cloudapp.azure.com/$path"
-            if curl -I -s -o /dev/null -w "%{http_code}" http://playhive.southindia.cloudapp.azure.com/$path | grep -q 200; then
+            APP_URL="http://$INGRESS_IP/$path"
+            echo "Testing $APP_URL"
+            if curl -I -s -o /dev/null -w "%{http_code}" $APP_URL | grep -q 200; then
               echo "✅ $path reachable"
             else
               echo "❌ $path failed to respond"; exit 1

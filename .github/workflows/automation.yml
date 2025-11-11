@@ -90,22 +90,12 @@ jobs:
             echo "✅ Ingress controller already running."
           fi
 
-       name: Install Flux CLI
-       run: |
-          set -e
-          echo "⚙️ Installing Flux CLI..."
-          curl -fsSL https://fluxcd.io/install.sh | bash || {
-            echo "❌ Flux install failed via script. Trying manual fallback..."
-            curl -sL https://github.com/fluxcd/flux2/releases/latest/download/flux_linux_amd64.tar.gz -o flux.tar.gz
-            tar -xzf flux.tar.gz
-            mkdir -p $HOME/bin
-            mv flux $HOME/bin/
-            chmod +x $HOME/bin/flux
-            echo "✅ Flux installed manually to \$HOME/bin"
-            export PATH=$HOME/bin:$PATH
-          }
+      # 9️⃣ Install Flux CLI
+      - name: Install Flux CLI
+        run: |
+          curl -sL https://fluxcd.io/install.sh | bash
+          export PATH=$PATH:/usr/local/bin
           flux --version
-
 
       # 🔟 Trigger FluxCD Reconciliation
       - name: Trigger FluxCD Reconciliation

@@ -69,7 +69,6 @@ jobs:
           chmod 600 ~/.kube/config
           kubectl config current-context
 
-      # 8️⃣ Ensure Ingress Controller Runs (Auto Fix)
       - name: 🧩 Ensure Ingress Controller is Running
         run: |
           echo "🔍 Checking ingress controller status..."

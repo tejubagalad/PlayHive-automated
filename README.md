@@ -28,7 +28,6 @@ The architecture ensures **modularity, scalability, and independent deployment**
 - ☸️ **Kubernetes Orchestration** - Deployed on Kubernetes with auto-scaling
 - 🔄 **CI/CD Pipeline** - Automated builds and deployments
 - 🌐 **Nginx Ingress** - Path-based routing for services
-- 📊 **HPA (Horizontal Pod Autoscaler)** - Auto-scaling based on CPU usage
 - ☁️ **Azure Cloud Deployment** - Production-ready cloud infrastructure
 
 ---
@@ -138,10 +137,6 @@ minikube ip
 
 ### **Monitoring & Scaling**
 - **Metrics Server** - Resource monitoring
-- **Horizontal Pod Autoscaler (HPA)** - Auto-scaling
-  - CPU threshold: 1%
-  - Min replicas: 1
-  - Max replicas: 5
 
 ---
 
@@ -261,17 +256,7 @@ kubectl scale deployment <deployment-name> --replicas=3
 minikube delete && minikube start && minikube addons enable ingress
 ```
 
-### **Auto-scaling**
-```bash
-# Enable HPA
-kubectl autoscale deployment snake --cpu-percent=1 --min=1 --max=5
 
-# Watch HPA status
-kubectl get hpa -w
-
-# Load testing (requires hey tool)
-hey -z 60s -c 100 http://snake.gamehub.local
-```
 
 ### **Service Access**
 ```bash
@@ -309,11 +294,7 @@ Nginx Ingress Controller routes traffic based on URL paths:
 - **Flux CD** for GitOps-based deployment
 - **Automatic rollouts** on code changes
 
-### **Scaling Strategy**
-- **HPA** monitors CPU usage
-- **Auto-scales** from 1 to 5 replicas
-- **Threshold**: 1% CPU usage
-- **Load balancing** via Kubernetes services
+
 
 ---
 
@@ -328,8 +309,7 @@ Nginx Ingress Controller routes traffic based on URL paths:
 - Production environment
 - Public domain: playhive.southindia.cloudapp.azure.com
 - SSL/TLS enabled
-- High availability
-- Auto-scaling enabled
+
 
 ---
 

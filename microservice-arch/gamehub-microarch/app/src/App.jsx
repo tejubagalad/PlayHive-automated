@@ -43,7 +43,7 @@ const App = () => {
           Welcome to the PlayHive!
         </h1>
         <p className="text-secondary mb-4">
-          PLAY SMART,WIN HARD!!!!
+           play smart,win hard!!
         </p>
 
         <div className="row justify-content-center g-3 w-100 px-3">
